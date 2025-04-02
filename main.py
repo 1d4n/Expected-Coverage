@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import MultipleLocator
 from scipy.special import comb
+from scipy.stats import linregress
 from sympy import EulerGamma
 
 FIGURES_PATH = "figures"
@@ -90,7 +91,7 @@ def simulate_experiment(n: int, t: int):
     :param t: The radius of the ball that being covered at each step.
     :return: The number of steps it took to cover all the vertices in the graph.
     """
-    covered = [False] * 2**n
+    covered = [False] * 2 ** n
     steps = 0
     while not all(covered):
         v = random.randint(0, 2 ** n - 1)
@@ -103,7 +104,7 @@ def simulate_experiment_large_t(n: int, t: int):
     """
         Same as simulate_experiment, but more efficient for larger t.
     """
-    not_covered = {v for v in range(2**n)}
+    not_covered = {v for v in range(2 ** n)}
     steps = 0
     while not_covered:
         v = random.randint(0, 2 ** n - 1)
@@ -143,6 +144,13 @@ def generate_figure(filename, title, x_values, y_values, x_label, y_label, point
     plt.scatter(x_values, y_values, color='blue', alpha=0.6, label=points_label)
     plt.plot(x_values, y_values, color='blue', alpha=0.4)
 
+    linear_equation = linear_regression(x_values, y_values, x_label)
+    exp_equation = exponential_regression(x_values, y_values, x_label)
+    log_equation = logistic_regression(x_values, y_values, x_label)
+    plt.plot([], [], ' ', label=linear_equation)
+    plt.plot([], [], ' ', label=exp_equation)
+    plt.plot([], [], ' ', label=log_equation)
+
     for x, y in zip(x_values, y_values):
         plt.annotate(f"{y:.2f}", (x, y), textcoords="offset points", xytext=(0, 5), ha='center', fontsize=8)
 
@@ -172,29 +180,66 @@ def expectation_t_figure(n: int, runs: int):
 
 def expectation_n_figure(n_values, runs, t):
     """
-    Generates a plot of the average number of steps to cover the graph as a function of n, for a specific t.
+    Generates a plot of the average number of steps to cover the graph as a function of n.
     :param n_values: The values of n (x-axis).
     :param runs: The number of times to run each experiment.
-    :param t: A function of n, such than t.calc(n) is the radius of the ball.
+    :param t: A function of n, such than t.get(n) is the radius of the ball.
     """
-    mean_values = [repeat_experiment(n, t.calc(n), runs) for n in n_values]
+    mean_values = [repeat_experiment(n, t.get(n), runs) for n in n_values]
     generate_figure(filename=f"{t}_runs={runs}.png", title=f"{t}, {runs} runs", x_values=n_values, y_values=mean_values,
                     x_label='n', y_label='Average Steps', points_label='Average Number of Steps')
 
 
-class T:
+class DivT:
     def __init__(self, k):
         self.k = k
 
     def __str__(self):
         return f"t=div(n,{self.k})"
 
-    def calc(self, n):
+    def get(self, n):
         return n // self.k
 
 
+class ConstT:
+    def __init__(self, k):
+        self.k = k
+
+    def __str__(self):
+        return f"t={self.k}"
+
+    def get(self, n):
+        return self.k
+
+
+class MinusT:
+    def __init__(self, k):
+        self.k = k
+
+    def __str__(self):
+        return f"t=n-{self.k}"
+
+    def get(self, n):
+        return n - self.k
+
+
+def linear_regression(x_values, y_values, x_name):
+    res = linregress(x_values, y_values)
+    return f"linear:  y = {res.slope:.2f}{x_name} {"+" if res.intercept > 0 else "-"} {abs(res.intercept):.2f}"
+
+
+def exponential_regression(x_values, y_values, x_name):
+    a, b = np.polyfit(x_values, np.log2(y_values), 1)
+    return f"exp:  y = {2 ** b:.2f} * 2**({a:.2f}{x_name})"
+
+
+def logistic_regression(x_values, y_values, x_name):
+    a, b = np.polyfit(np.log2(x_values), y_values, 1)
+    return f"log:  y = {a:.2f} * log2({x_name}) {"+" if b > 0 else "-"} {abs(b):.2f}"
+
+
 if __name__ == "__main__":
-    min_n = 2
-    max_n = 20
-    k = 2  # t = n // k
-    expectation_n_figure(n_values=range(min_n, max_n + 1, k), runs=1000, t=T(k))
+    RUNS = 1000
+    expectation_n_figure(n_values=range(2, 21, 2), runs=RUNS, t=DivT(2))  # t=n/2
+    expectation_n_figure(n_values=range(13), runs=RUNS, t=ConstT(1))  # t=n-1
+    expectation_t_figure(n=12, runs=RUNS)
