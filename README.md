@@ -109,3 +109,8 @@ expectation_t_figure(n=12, runs=1000)
 coverage_rate_steps_figure(n=12, runs=1000, t=DivT(2))
 coverage_rate_steps_figure(n=12, runs=1000, t=ConstT(1))
 ```
+
+---
+
+## Sample Output
+![graph of average steps as a function of n, for t=1](https://github.com/1d4n/Expected-Coverage/blob/main/figures/t=1_runs=1000.png?raw=true)
