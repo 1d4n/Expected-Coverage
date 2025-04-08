@@ -1,6 +1,6 @@
-# Expected Coverage over Hamming Graphs
+# Expected Coverage over Graphs
 
-This project investigates the expected number of steps required to cover the entire Hamming graph G = (V, E), where V = {0,1}^n and edges connect nodes with Hamming distance 1.
+This project investigates the expected number of steps required to cover the Hamming graph `G = (V, E)`, where `V = {0,1}^n` and edges connect nodes with Hamming distance 1.
 
 ---
 
@@ -11,14 +11,14 @@ Given the Hamming graph of order n, consider the following random process:
 - At each step, a vertex v ∈ V is selected uniformly at random.
 - The user receives the t-neighborhood of v, defined as:
 
-  B_t(v) = { u ∈ V | d_H(u, v) ≤ t }
+  `B_t(v) = { u ∈ V | d_H(u, v) ≤ t }`
 
 - The process continues until every vertex in the graph has been revealed, i.e., the union of all sampled neighborhoods covers V.
 
 **Goal**:  
 Estimate the expected number of steps required for full coverage of the graph, for varying values of:
-- n – the dimension of the Hamming graph
-- t – the Hamming radius
+- `n` – the dimension of the Hamming graph
+- `t` – the Hamming radius
 
 ---
 
@@ -102,7 +102,7 @@ The main logic is implemented in `main.py` and organized into the following comp
 ## Example Experiments
 
 ```python
-expectation_n_figure(n_values=range(2, 14, 2), runs=1000, t=DivT(2))  # t = n / 2
+expectation_n_figure(n_values=range(2, 14, 2), runs=1000, t=DivT(2))  # t = n // 2
 expectation_n_figure(n_values=range(1, 13), runs=1000, t=ConstT(1))  # t = 1
 expectation_t_figure(n=12, runs=1000)
 
