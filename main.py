@@ -225,7 +225,7 @@ def coverage_rate_steps_figure(n, runs, t):
 
 def linear_regression(x_values, y_values, x_name):
     res = linregress(x_values, y_values)
-    return f"linear:  y = {res.slope:.2f}{x_name} {"+" if res.intercept > 0 else "-"} {abs(res.intercept):.2f}"
+    return f"linear:  y = {res.slope:.2f}{x_name} {'+' if res.intercept > 0 else '-'} {abs(res.intercept):.2f}"
 
 
 def exponential_regression(x_values, y_values, x_name):
@@ -235,9 +235,10 @@ def exponential_regression(x_values, y_values, x_name):
 
 def logistic_regression(x_values, y_values, x_name):
     a, b = np.polyfit(np.log2(x_values), y_values, 1)
-    return f"log:  y = {a:.2f} * log2({x_name}) {"+" if b > 0 else "-"} {abs(b):.2f}"
+    return f"log:  y = {a:.2f} * log2({x_name}) {'+' if b > 0 else '-'} {abs(b):.2f}"
 
 
+# Classes for representing the radius of the ball
 class DivT:
     def __init__(self, k):
         self.k = k
@@ -273,7 +274,6 @@ class MinusT:
 
 if __name__ == "__main__":
     RUNS = 1000
-
     expectation_t_figure(n=12, runs=RUNS)
 
     expectation_n_figure(n_values=range(2, 21, 2), runs=RUNS, t=DivT(2))  # t=n/2
